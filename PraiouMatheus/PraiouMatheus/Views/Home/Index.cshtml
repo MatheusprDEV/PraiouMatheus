@@ -1,0 +1,310 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    /* Estilo geral */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        width: 100%;
+        overflow-x: hidden;
+        font-family: 'Itim', sans-serif; /* Fonte Itim */
+        color: white;
+        background-color: #121212;
+    }
+
+    /* Cabeçalho */
+    header {
+        background-color: #121212;
+        padding: 20px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-around;
+        font-size: 20px;
+    }
+
+        nav a {
+            color: #f4c242;
+            text-decoration: none;
+        }
+
+            nav a:hover {
+                text-decoration: underline;
+            }
+
+    /* Seção de boas-vindas */
+    .welcome-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+        background-image: url('/img/TeladeFundo.jpg');
+        background-size: cover;
+        background-position: center;
+        width: 100vw;
+        margin-left: calc(50% - 50vw); /* Ajuste para centralizar sem margens */
+    }
+
+    h1 {
+        font-family: 'Brush Script MT', cursive;
+        color: #f4c242;
+        font-size: 80px;
+        margin: 0;
+    }
+
+    h2 {
+        color: white;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .botaocomecar {
+        margin-top: 20px;
+    }
+
+    button {
+        background-color: #f4c242;
+        color: black;
+        border-radius: 50px;
+        padding: 15px 25px;
+        border: none;
+        font-size: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+    }
+
+        button:hover {
+            background-color: #e5b737;
+        }
+
+    /* Seção de Login e Cadastro */
+    .login-cadastro-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+        background-color: #1c1c1c;
+        width: 100vw;
+        margin-left: calc(50% - 50vw); /* Centraliza a seção */
+        font-size: 20px; /* Aumenta o tamanho da fonte */
+        text-align: left;
+    }
+
+    .login-cadastro-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        max-width: 1000px;
+    }
+
+    /* Título */
+    .login-cadastro-section h2 {
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+
+    /* Texto do parágrafo */
+    .login-cadastro-section p {
+        line-height: 1.6; /* Ajusta o espaçamento entre linhas */
+        font-size: 1rem;
+    }
+
+    /* Lista */
+    .login-cadastro-section ul {
+        text-align: left;
+        margin: 50px auto;
+        padding: 0;
+        max-width: 600px;
+        list-style: none;
+    }
+
+    .login-cadastro-section li {
+        margin-bottom: 10px;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Destaques */
+    .login-cadastro-section .highlight {
+        color: #f4c242;
+        font-weight: bold;
+    }
+
+    /* Ajusta o tamanho da imagem */
+    .login-cadastro-section img {
+        width: 450px; /* Define a largura da imagem */
+        height: auto; /* Mantém a proporção da altura */
+        border-radius: 10px;
+        margin-right: 300px;
+        margin-left: -110px; /* Move a imagem para a esquerda */
+    }
+
+    /* Botões */
+    .login-cadastro-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+        .login-cadastro-buttons a {
+            text-decoration: none;
+        }
+
+        .login-cadastro-buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #f4c242;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .login-cadastro-buttons button:hover {
+                background-color: #d1a634;
+            }
+
+
+    .sobre-section {
+        display: flex;
+        align-items: flex-start; /* Alinha itens no topo */
+        padding: 100px;
+        background-color: #333;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        gap: 4px; /* Espaçamento entre a imagem e o texto */
+    }
+
+        .sobre-section img {
+            border-radius: 10px;
+            width: 350px; /* Ajuste do tamanho da imagem */
+            height: auto;
+            margin-right: 400px; /* Espaçamento entre imagem e texto */
+        }
+
+    .sobre-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 200px;
+    }
+
+    .sobre-texto {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; /* Garante alinhamento no topo */
+        text-align: left; /* Texto alinhado à esquerda */
+        max-width: 600px; /* Define largura máxima do texto */
+        font-size: 18px; /* Aumenta a legibilidade */
+        color: #fff; /* Define a cor do texto para contraste */
+    }
+
+        .sobre-texto h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+
+</style>
+
+<header>
+    <nav>
+        <a href="/">Praiou</a>
+        <a href="/">Início</a>
+        <a href="/Home/pagBusca">Buscar Praia</a>
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="/Usuario/Login">Login</a>
+            <a href="/Usuario/Register">Cadastro</a>
+        }
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Usuario/Profile">Perfil</a>
+            <a href="/Avaliacao/EnviarAvaliacao">Avaliação</a>
+            <a href="/Usuario/Profile">Sair</a>
+        }
+    </nav>
+</header>
+
+<div class="container">
+    <!-- Seção de boas-vindas -->
+    <div class="welcome-section">
+        <h1>Praiou</h1>
+        <h2>Encontre as melhores praias do litoral brasileiro</h2>
+        <div class="botaocomecar">
+            <a href="/Home/pagBusca">
+                <button>Comece!</button>
+            </a>
+        </div>
+    </div>
+
+    <!-- Seção de Login e Cadastro -->
+    <div class="login-cadastro-section">
+        <div class="login-cadastro-content">
+            <img src="~/img/Avaliacaoo.png" alt="Imagem decorativa">
+            <div>
+                <h2>Login e Cadastro</h2>
+                <p>Junte-se à <span class="highlight">Praiou</span> e aproveite as exclusividades da nossa plataforma! Ao se cadastrar, você poderá:</p>
+                <ul class="login-cadastro-list">
+                    <li><span class="highlight">Relatar Suas Viagens</span>: Compartilhe suas experiências e dicas com a comunidade.</li>
+                    <li><span class="highlight">Avaliar e Compartilhar</span>: Deixe suas avaliações e ajude outros usuários a encontrar as melhores praias.</li>
+                </ul>
+                <div class="login-cadastro-buttons">
+                    <a href="/Usuario/Login"><button>Login</button></a>
+                    <a href="/Usuario/Register"><button>Cadastro</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="sobre-section">
+    <!-- Imagem -->
+
+        <a href="https://www.linkedin.com/in/seu-perfil" target="_blank">
+            <img src="~/img/MatheusPrado.jpg" alt="Foto do criador do site" style="margin-left: 250px;" class="hover-effect">
+        </a>
+
+    <!-- Texto -->
+    <div class="sobre-content">
+        <div class="sobre-texto">
+            <h2>Sobre a Plataforma</h2>
+            <p>
+                <span style="color: #f4c242;">Praiou</span> é uma plataforma criada para facilitar o planejamento de viagens para o litoral brasileiro.
+                Ela oferece recomendações de praias, restaurantes, hotéis e atrações turísticas, centralizando informações essenciais para que os turistas
+                possam organizar suas viagens de forma prática e eficiente. A plataforma visa proporcionar uma experiência simples e agradável, contribuindo para o desenvolvimento do turismo sustentável
+                no país, promovendo negócios locais e otimizando o tempo dos viajantes.
+            </p>
+
+            <h2>Sobre Mim</h2>
+            <p>
+                Olá, meu nome é Matheus Prado Rocha. Sou o criador do <span style="color: #f4c242;">Praiou</span>. Faço curso técnico de Análise
+                e Desenvolvimento de Sistemas pelo Senai desde 2023. A ideia surgiu da crescente demanda por soluções que simplifiquem o acesso
+                a informações turísticas confiáveis no litoral brasileiro.
+            </p>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,456 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de Praias e Filtros</title>
+    <style>
+        body {
+            overflow-y: hidden; /* Desativa a rolagem vertical */
+        }
+
+        header {
+            background-color: #121212;
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+            color: #f4c242;
+            font-size: 20px;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            nav a {
+                color: #f4c242;
+                text-decoration: none;
+                padding: 15px 0;
+                width: 100%;
+                text-align: center;
+                transition: background-color 0.3s;
+            }
+
+                nav a:hover {
+                    background-color: #333333;
+                }
+
+        /* Conteúdo principal para dar espaço ao header lateral */
+        .main-content {
+            margin-left: 260px; /* Adiciona um espaço para o header lateral */
+            padding: 20px;
+        }
+
+        #container {
+            display: grid;
+            height: 100vh;
+        }
+
+        #map {
+            height: 100vh;
+            width: 131%;
+        }
+
+        #searchPanel {
+            background-color: #f4c242;
+            padding: 30px;
+            height: 100vh;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 80px;
+            border: 2px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        /* Botões de ação */
+        #searchButton, #routeButton, #filterButton, #clearButton {
+            padding: 10px 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #searchButton { /* Específico para o botão de busca */
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #routeButton { /* Específico para o botão de rota */
+            background-color: #2196F3;
+            color: white;
+        }
+
+        #filterButton { /* Específico para o botão de filtros */
+            background-color: #FF5722;
+            color: white;
+        }
+
+        #clearButton { /* Específico para o botão de limpar */
+            background-color: #f44336;
+            color: white;
+        }
+
+        #warningMessage {
+            color: red;
+            display: none;
+        }
+
+        #routeInfo {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            display: none;
+            margin-top: 10px;
+        }
+
+        .form-spacing {
+            margin-top: 20px;
+        }
+
+        .title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            bottom: 120px;
+            left: 18%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 50px;
+            height: 15px;
+            margin-right: 10px;
+        }
+    </style>
+
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="/">Praiou</a>
+            <a href="/">Início</a>
+            <a href="/Home/pagBusca">Buscar Praia</a>
+
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a href="/Usuario/Login">Login</a>
+                <a href="/Usuario/Register">Cadastro</a>
+            }
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a href="/Usuario/Profile">Perfil</a>
+                <a href="/Avaliacao/EnviarAvaliacao">Avaliação</a>
+                <a href="/Usuario/Profile">Sair</a>
+            }
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3" id="searchPanel">
+                <div class="title">Pesquisar Praia</div>
+                <form id="searchForm" class="form-spacing">
+                    <input type="text" id="searchInput" name="searchString" placeholder="Pesquisar Praia" />
+                    <input type="submit" value="Buscar Praia" id="searchButton" />
+                </form>
+
+                <div class="title">Calcular Rota</div>
+                <form id="routeForm" class="form-spacing">
+                    <input type="text" id="originInput" name="originString" placeholder="Origem" />
+                    <input type="text" id="destinationInput" name="destinationString" placeholder="Destino" />
+                    <input type="submit" value="Calcular Rota" id="routeButton" />
+                </form>
+
+                <div class="title">Filtros de Busca</div>
+                <form id="filterForm" class="form-spacing">
+                    <label><input type="checkbox" id="filterHotels" /> Hotéis</label><br>
+                    <label><input type="checkbox" id="filterRestaurants" /> Restaurantes</label><br>
+                    <label><input type="checkbox" id="filterBeaches" /> Praias</label><br>
+                    <label><input type="checkbox" id="filterTouristAttractions" /> Atrações Turísticas</label><br>
+                    <input type="submit" value="Aplicar Filtros" id="filterButton" />
+                </form>
+
+                <button id="clearButton">Limpar Tudo</button>
+
+                <div id="routeInfo"></div>
+                <p id="warningMessage">As buscas estão limitadas ao Brasil. Tente uma localização válida dentro do Brasil.</p>
+            </div>
+
+            <div class="col-md-9">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: green;"></div>
+            Restaurante
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: blue;"></div>
+            Hotel
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: cyan;"></div>
+            Praia
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: yellow;"></div>
+            Local Pesquisado
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: orange;"></div>
+            Atração Turística
+        </div>
+    </div>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoieW1hdGhldXNzMDciLCJhIjoiY20xbzZsZmg3MTRkNTJqb2xiOTM5ZDJ0eSJ9.1e4S-EWYerGxPm7QXADAkQ';
+
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/satellite-streets-v12',
+            center: [-51.92528, -14.235004],
+            zoom: 4
+        });
+
+        var currentRouteLayerId = 'route';
+        var beachMarkers = [];
+        var routeMarkers = [];
+        var filterMarkers = [];
+
+        function searchNearbyPlaces(coordinates, filters = []) {
+            clearMarkers(filterMarkers);
+            var types = [];
+
+            if (filters.includes('hotels')) types.push('hotel');
+            if (filters.includes('restaurants')) types.push('restaurant');
+            if (filters.includes('touristAttractions')) types.push('tourist attraction');
+            if (filters.includes('beaches')) types.push('beach');
+
+            types.forEach(type => {
+                fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${type}.json?proximity=${coordinates.join(',')}&access_token=${mapboxgl.accessToken}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.features.forEach(function (place) {
+                            var placeCoordinates = place.geometry.coordinates;
+                            var placeName = place.text;
+
+                            var googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(placeName)}`;
+
+                            var marker = new mapboxgl.Marker({
+                                color: type === 'hotel' ? 'blue' : type === 'restaurant' ? 'green' : type === 'beach' ? 'cyan' : 'orange'
+                            })
+                                .setLngLat(placeCoordinates)
+                                .setPopup(new mapboxgl.Popup().setHTML(`
+                                                                    <h4>${placeName}</h4>
+                                                                    <a href="${googleSearchUrl}" target="_blank">Mais informações</a>`))
+                                .addTo(map);
+
+                            filterMarkers.push(marker);
+                        });
+                    });
+            });
+        }
+
+        function clearMarkers(markersArray) {
+            markersArray.forEach(marker => marker.remove());
+            markersArray.length = 0;
+        }
+
+        function isWithinBrazil(coordinates) {
+            var [lng, lat] = coordinates;
+            var bboxBrazil = [-73.9828, -33.7500, -34.7931, 5.2718];
+            return lng >= bboxBrazil[0] && lng <= bboxBrazil[2] && lat >= bboxBrazil[1] && lat <= bboxBrazil[3];
+        }
+
+        function searchBeach(query) {
+            clearMarkers(beachMarkers);
+
+            return fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${mapboxgl.accessToken}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.features.length > 0) {
+                        var coordinates = data.features[0].geometry.coordinates;
+                        var placeName = data.features[0].place_name;
+
+                        if (isWithinBrazil(coordinates)) {
+                            var marker = new mapboxgl.Marker({ color: 'yellow' })
+                                .setLngLat(coordinates)
+                                .setPopup(new mapboxgl.Popup().setHTML(`<h3>${placeName}</h3>`))
+                                .addTo(map);
+
+                            beachMarkers.push(marker);
+
+                            map.flyTo({
+                                center: coordinates,
+                                zoom: 10
+                            });
+
+                            return coordinates;
+                        } else {
+                            document.getElementById('warningMessage').style.display = 'block';
+                            return null;
+                        }
+                    } else {
+                        document.getElementById('warningMessage').style.display = 'block';
+                        return null;
+                    }
+                });
+        }
+
+        function searchRoute(origin, destination) {
+            clearMarkers(routeMarkers);
+
+            return Promise.all([
+                fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${origin}.json?access_token=${mapboxgl.accessToken}`).then(res => res.json()),
+                fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${destination}.json?access_token=${mapboxgl.accessToken}`).then(res => res.json())
+            ])
+                .then(([originData, destinationData]) => {
+                    if (originData.features.length > 0 && destinationData.features.length > 0) {
+                        var originCoords = originData.features[0].geometry.coordinates;
+                        var destinationCoords = destinationData.features[0].geometry.coordinates;
+
+                        map.flyTo({
+                            center: originCoords,
+                            zoom: 10
+                        });
+
+                        return fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${originCoords.join(',')};${destinationCoords.join(',')}?geometries=geojson&access_token=${mapboxgl.accessToken}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.routes.length > 0) {
+                                    var route = data.routes[0].geometry;
+
+                                    if (map.getLayer(currentRouteLayerId)) {
+                                        map.removeLayer(currentRouteLayerId);
+                                        map.removeSource(currentRouteLayerId);
+                                    }
+
+                                    map.addSource(currentRouteLayerId, {
+                                        type: 'geojson',
+                                        data: {
+                                            type: 'Feature',
+                                            geometry: route
+                                        }
+                                    });
+
+                                    map.addLayer({
+                                        id: currentRouteLayerId,
+                                        type: 'line',
+                                        source: currentRouteLayerId,
+                                        paint: {
+                                            'line-color': '#ff0000',
+                                            'line-width': 5
+                                        }
+                                    });
+
+                                    const horas = Math.floor(data.routes[0].duration / 3600); // Converte para horas inteiras
+                                    const minutos = Math.floor((data.routes[0].duration % 3600) / 60); // Converte o restante para minutos
+
+                                    document.getElementById('routeInfo').innerHTML = `Distância: ${(data.routes[0].distance / 1000).toFixed(2)} km <br> Duração: ${horas}:${minutos.toString().padStart(2, '0')} horas`;
+                                    document.getElementById('routeInfo').style.display = 'block';
+
+
+
+                                    var originMarker = new mapboxgl.Marker({ color: 'red' })
+                                        .setLngLat(originCoords)
+                                        .setPopup(new mapboxgl.Popup().setHTML('<h3>Origem</h3>'))
+                                        .addTo(map);
+
+                                    var destinationMarker = new mapboxgl.Marker({ color: 'red' })
+                                        .setLngLat(destinationCoords)
+                                        .setPopup(new mapboxgl.Popup().setHTML('<h3>Destino</h3>'))
+                                        .addTo(map);
+
+                                    routeMarkers.push(originMarker, destinationMarker);
+                                }
+                            });
+                    } else {
+                        document.getElementById('warningMessage').style.display = 'block';
+                    }
+                });
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            document.getElementById('warningMessage').style.display = 'none';
+            searchBeach(document.getElementById('searchInput').value);
+        });
+
+        document.getElementById('routeForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            document.getElementById('warningMessage').style.display = 'none';
+            searchRoute(document.getElementById('originInput').value, document.getElementById('destinationInput').value);
+        });
+
+        document.getElementById('filterForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            document.getElementById('warningMessage').style.display = 'none';
+            var filters = [];
+            if (document.getElementById('filterHotels').checked) filters.push('hotels');
+            if (document.getElementById('filterRestaurants').checked) filters.push('restaurants');
+            if (document.getElementById('filterBeaches').checked) filters.push('beaches');
+            if (document.getElementById('filterTouristAttractions').checked) filters.push('touristAttractions');
+
+            searchBeach(document.getElementById('searchInput').value)
+                .then(coordinates => {
+                    if (coordinates) searchNearbyPlaces(coordinates, filters);
+                });
+        });
+
+        document.getElementById('clearButton').addEventListener('click', function () {
+            clearMarkers(beachMarkers);
+            clearMarkers(routeMarkers);
+            clearMarkers(filterMarkers);
+
+            if (map.getLayer(currentRouteLayerId)) {
+                map.removeLayer(currentRouteLayerId);
+                map.removeSource(currentRouteLayerId);
+            }
+
+            document.getElementById('warningMessage').style.display = 'none';
+            document.getElementById('routeInfo').style.display = 'none';
+
+            document.getElementById('searchInput').value = '';
+            document.getElementById('originInput').value = '';
+            document.getElementById('destinationInput').value = '';
+            document.getElementById('filterHotels').checked = false;
+            document.getElementById('filterRestaurants').checked = false;
+            document.getElementById('filterBeaches').checked = false;
+            document.getElementById('filterTouristAttractions').checked = false;
+        });
+    </script>
+</body>
+</html>

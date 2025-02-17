@@ -1,0 +1,165 @@
+﻿@model Avaliacao
+@{
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação de Praia</title>
+    <style>
+        /* Estilo padrão da página de avaliação */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F4F4F4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 10px auto;
+            padding: 100px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        .formulario-avaliacao {
+            margin-top: 30px;
+        }
+
+            .formulario-avaliacao label {
+                display: block;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            .formulario-avaliacao input,
+            .formulario-avaliacao textarea {
+                width: 100%;
+                padding: 10px;
+                margin-top: 5px;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+                font-size: 1rem;
+            }
+
+            .formulario-avaliacao textarea {
+                resize: vertical;
+            }
+
+            .formulario-avaliacao button {
+                margin-top: 15px;
+                padding: 10px 20px;
+                background-color: #F4C242;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 1rem;
+                cursor: pointer;
+            }
+
+                .formulario-avaliacao button:hover {
+                    background-color: #e3b035;
+                }
+
+        .instrucao-usuario {
+            margin-top: 10px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-style: italic;
+            color: #666;
+        }
+
+        header {
+            background-color: #121212;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            font-size: 20px;
+        }
+
+            nav a {
+                color: #f4c242;
+                text-decoration: none;
+            }
+
+                nav a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="/">Praiou</a>
+            <a href="/">Início</a>
+            <a href="/Home/pagBusca">Buscar Praia</a>
+
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a href="/Usuario/Login">Login</a>
+                <a href="/Usuario/Register">Cadastro</a>
+            }
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a href="/Usuario/Profile">Perfil</a>
+                <a href="/Avaliacao/EnviarAvaliacao">Avaliação</a>
+                <a href="/Usuario/Profile">Sair</a>
+            }
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Avaliação de Praia</h2>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <!-- Formulário de Avaliação -->
+            <form asp-action="EnviarAvaliacao" method="post" class="formulario-avaliacao">
+                <label for="rating">Nota (1-5):</label>
+                <input type="number" id="rating" name="Nota" min="1" max="5" required>
+
+                <div class="instrucao-usuario">
+                    <p><strong>Formato do comentário:</strong> Informe o **Estado, Cidade, Praia** e depois seu comentário.</p>
+                </div>
+
+                <label for="comment">Comentário:</label>
+                <textarea id="comment"
+                          name="Comentario"
+                          rows="3"
+                          required></textarea>
+
+                <button type="submit">Enviar Avaliação</button>
+            </form>
+        }
+        else
+        {
+            <p>Você precisa estar logado para enviar uma avaliação. <a href="/Usuario/Login">Clique aqui para fazer login.</a></p>
+        }
+
+    </div>
+</body>
+</html>

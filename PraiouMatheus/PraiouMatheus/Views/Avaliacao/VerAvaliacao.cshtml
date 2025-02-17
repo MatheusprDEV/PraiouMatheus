@@ -1,0 +1,397 @@
+﻿@model IEnumerable<Avaliacao>
+@{
+    Layout = "_Layout";
+}
+
+@* Estilo CSS para a página de visualização de avaliações *@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #F4F4F4;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+    }
+
+    .filter-container {
+        margin: 20px 0;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+        .filter-container label {
+            font-size: 1.1rem;
+            margin-right: 10px;
+            color: #333;
+        }
+
+        .filter-container select {
+            padding: 12px 18px;
+            font-size: 1.1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: auto;
+            min-width: 200px;
+        }
+
+    .avaliacao-lista {
+        margin-top: 30px;
+    }
+
+    .avaliacao-item {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+        .avaliacao-item h4 {
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .avaliacao-item p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .avaliacao-item .usuario {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #3b8b3a;
+        }
+
+    .botao-voltar {
+        display: block;
+        margin-top: 30px;
+        text-align: center;
+        background-color: #F4C242;
+        color: #fff;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+    }
+
+        .botao-voltar:hover {
+            background-color: #e3b035;
+        }
+
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #F4C242;
+        color: #fff;
+        padding: 15px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    header {
+        background-color: #121212;
+        padding: 20px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-around;
+        font-size: 20px;
+    }
+
+        nav a {
+            color: #f4c242;
+            text-decoration: none;
+        }
+
+            nav a:hover {
+                text-decoration: underline;
+            }
+
+    .nota {
+        font-size: 1.5rem;
+        display: inline-block;
+    }
+
+        .nota span {
+            font-size: 1.5rem;
+            margin-right: 3px;
+        }
+
+    .estrelas span {
+        font-size: 2rem; /* Aumenta o tamanho das estrelas */
+    }
+
+    /* Estilo para os botões "Minhas Avaliações" e "Mostrar Todas" */
+    .botao-filtrar {
+        background-color: #F4C242;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-right: 15px;
+    }
+
+        .botao-filtrar:hover {
+            background-color: #e3b035;
+        }
+
+
+    .avaliacao-item {
+        position: relative; /* Adicione esta linha para permitir o posicionamento absoluto dos botões */
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .botao-container {
+        position: absolute;
+        bottom: 10px; /* Distância do fundo */
+        right: 10px; /* Distância da direita */
+        display: flex;
+        gap: 10px; /* Espaçamento entre os botões */
+    }
+
+    .botao-filtrar {
+        background-color: #F4C242;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .botao-filtrar:hover {
+            background-color: #e3b035;
+        }
+
+
+</style>
+
+<header>
+    <nav>
+        <a href="/">Praiou</a>
+        <a href="/">Início</a>
+        <a href="/Home/pagBusca">Buscar Praia</a>
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="/Usuario/Login">Login</a>
+            <a href="/Usuario/Register">Cadastro</a>
+        }
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Usuario/Profile">Perfil</a>
+            <a href="/Avaliacao/EnviarAvaliacao">Avaliação</a>
+            <a href="/Usuario/Profile">Sair</a>
+        }
+    </nav>
+</header>
+
+<div class="container">
+    <h2>Avaliações</h2>
+
+    <div class="filter-container">
+        <label for="filter">Ordenar por:</label>
+        <select id="filter">
+            <option value="recent">Mais recente</option>
+            <option value="oldest">Mais antiga</option>
+            <option value="highest">Nota mais alta</option>
+            <option value="lowest">Nota mais baixa</option>
+        </select>
+    </div>
+
+    <!-- Botões para filtrar por perfil -->
+    <div class="filter-buttons">
+        <button id="show-my-reviews" class="botao-filtrar">Minhas Avaliações</button>
+        <button id="show-all-reviews" class="botao-filtrar" style="display: none;">Mostrar Todas</button>
+    </div>
+
+    <div class="avaliacao-lista" id="avaliacao-lista">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var avaliacao in Model)
+            {
+
+
+                <div class="avaliacao-item"
+                     data-nota="@avaliacao.Nota"
+                     data-data="@avaliacao.DataAvaliacao?.ToString("yyyy-MM-dd")"
+                     data-user="@avaliacao.UsuarioEmail">
+                    <h4>Ator: @avaliacao.UsuarioEmail</h4>
+                    <p>
+                        <strong>Comentário:</strong> @avaliacao.Comentario
+                    </p>
+                    <p class="usuario">Por: @avaliacao.UsuarioEmail</p>
+                    <p><strong>Data:</strong> @avaliacao.DataAvaliacao?.ToString("dd/MM/yyyy")</p>
+
+                    <!-- Exibição das estrelas -->
+                    <p>
+                        <strong>Nota:</strong>
+                        <span class="estrelas">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                var color = "";
+
+                                // Definindo a cor da estrela com base na nota
+                                switch (avaliacao.Nota)
+                                {
+                                    case 1:
+                                        color = i < avaliacao.Nota ? "red" : "gray"; // Vermelho
+                                        break;
+                                    case 2:
+                                        color = i < avaliacao.Nota ? "orangered" : "gray"; // Vermelho alaranjado
+                                        break;
+                                    case 3:
+                                        color = i < avaliacao.Nota ? "yellow" : "gray"; // Amarelo
+                                        break;
+                                    case 4:
+                                        color = i < avaliacao.Nota ? "lightgreen" : "gray"; // Verde Claro
+                                        break;
+                                    case 5:
+                                        color = i < avaliacao.Nota ? "darkgreen" : "gray"; // Verde Escuro
+                                        break;
+                                    default:
+                                        color = "gray"; // Caso de erro, padrão para cinza
+                                        break;
+                                }
+
+                                <span style="color: @color;">★</span>  <!-- Estrela colorida -->
+                            }
+                        </span>
+                    </p>
+
+                    @if (User.Identity.Name == avaliacao.UsuarioEmail)
+                    {
+                        <div class="botao-container">
+                            <form asp-action="DeletarAvaliacao" asp-route-id="@avaliacao.AvaliacaoId" method="post" style="display:inline"
+                                  onsubmit="return confirm('Você tem certeza que deseja excluir esta avaliação?');">
+                                <button type="submit" class="botao-filtrar">Excluir</button>
+                            </form>
+                        </div>
+                    }
+
+                </div>
+
+
+            }
+        }
+        else
+        {
+            <p>Nenhuma avaliação encontrada.</p>
+        }
+    </div>
+
+    <a href="/Home/Index" class="botao-voltar">Voltar à Página Inicial</a>
+
+    <div class="back-to-top" id="backToTop">&#8679;</div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const showMyReviewsButton = document.getElementById("show-my-reviews");
+        const showAllReviewsButton = document.getElementById("show-all-reviews");
+        const allReviews = document.querySelectorAll(".avaliacao-item");
+        const filterSelect = document.getElementById("filter");
+        const reviewList = document.getElementById("avaliacao-lista");
+
+        // Função de ordenação
+        function sortReviews(criteria) {
+            const sortedReviews = Array.from(allReviews).sort((a, b) => {
+                const notaA = parseInt(a.dataset.nota);
+                const notaB = parseInt(b.dataset.nota);
+                const dataA = new Date(a.dataset.data);
+                const dataB = new Date(b.dataset.data);
+
+                if (criteria === "recent") {
+                    return dataB - dataA; // Ordenar pela data mais recente
+                } else if (criteria === "oldest") {
+                    return dataA - dataB; // Ordenar pela data mais antiga
+                } else if (criteria === "highest") {
+                    return notaB - notaA; // Ordenar pela maior nota
+                } else if (criteria === "lowest") {
+                    return notaA - notaB; // Ordenar pela menor nota
+                }
+            });
+
+            sortedReviews.forEach(review => {
+                reviewList.appendChild(review); // Reordenar no DOM
+            });
+        }
+
+        // Aplicar a ordenação ao mudar o filtro
+        filterSelect.addEventListener("change", function () {
+            const criteria = filterSelect.value;
+            sortReviews(criteria);
+        });
+
+        showMyReviewsButton.addEventListener("click", function () {
+            const userEmail = '@User.Identity.Name';
+            allReviews.forEach(function (review) {
+                if (review.dataset.user === userEmail) {
+                    review.style.display = "block"; // Mostrar avaliações do usuário
+                } else {
+                    review.style.display = "none"; // Ocultar avaliações que não são do usuário
+                }
+            });
+
+            showMyReviewsButton.style.display = "none"; // Esconder botão "Minhas Avaliações"
+            showAllReviewsButton.style.display = "inline-block"; // Mostrar botão "Mostrar Todas"
+        });
+
+        showAllReviewsButton.addEventListener("click", function () {
+            allReviews.forEach(function (review) {
+                review.style.display = "block"; // Mostrar todas as avaliações
+            });
+
+            showAllReviewsButton.style.display = "none"; // Esconder botão "Mostrar Todas"
+            showMyReviewsButton.style.display = "inline-block"; // Mostrar botão "Minhas Avaliações"
+        });
+
+        // Exibir avaliações do usuário logado ao carregar a página
+        allReviews.forEach(function (review) {
+            if (review.dataset.user === '@User.Identity.Name') {
+                review.style.display = "block"; // Mostrar avaliações do usuário
+            }
+        });
+    });
+</script>
+

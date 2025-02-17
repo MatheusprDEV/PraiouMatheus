@@ -1,0 +1,151 @@
+﻿<style>
+    /* Estilos gerais */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #fefefe;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    header {
+        background-color: #121212;
+        padding: 20px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-around;
+        font-size: 20px;
+    }
+
+        nav a {
+            color: #f4c242;
+            text-decoration: none;
+        }
+
+            nav a:hover {
+                text-decoration: underline;
+            }
+
+    /* Estilos das páginas de formulário */
+    .form-container {
+        width: 90%;
+        max-width: 600px;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    h2 {
+        color: #333;
+        font-size: 1.8em;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Estilos do formulário */
+    .form-group label {
+        font-size: 1.1em;
+        color: #555;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1em;
+        color: #333;
+    }
+
+    .btn {
+        background-color: #f4c242;
+        color: #fff;
+        font-size: 1.1em;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+        .btn:hover {
+            background-color: #e0af3c;
+        }
+
+    .alert {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        margin-top: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+</style>
+
+        @model PraiouMatheus.Models.Usuario
+
+@{
+    ViewData["Title"] = "Cadastro";
+}
+
+<header>
+    <nav>
+        <a href="/">Praiou</a>
+        <a href="/">Início</a>
+        <a href="/Home/pagBusca">Buscar Praia</a>
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="/Usuario/Login">Login</a>
+            <a href="/Usuario/Register">Cadastro</a>
+        }
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a href="/Usuario/Profile">Perfil</a>
+            <a href="/Avaliacao/EnviarAvaliacao">Avaliação</a>
+            <a href="/Usuario/Profile">Sair</a>
+        }
+    </nav>
+</header>
+
+<div class="form-container">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="Register" asp-controller="Usuario" method="post">
+        <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" class="form-control" id="nome" name="Nome" required />
+        </div>
+        <div class="form-group">
+            <label for="DataNasc">Data de Nascimento</label>
+            <input type="date" class="form-control" id="DataNasc" name="DataNasc" required />
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="Email" required />
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha</label>
+            <input type="password" class="form-control" id="senha" name="Senha" required />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn">Cadastrar</button>
+        </div>
+    </form>
+</div>
